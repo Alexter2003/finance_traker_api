@@ -1,0 +1,150 @@
+"use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ExpensesController = void 0;
+const common_1 = require("@nestjs/common");
+const swagger_1 = require("@nestjs/swagger");
+const expenses_service_1 = require("./expenses.service");
+const create_expense_dto_1 = require("./dto/create-expense.dto");
+const update_expense_dto_1 = require("./dto/update-expense.dto");
+const expense_query_dto_1 = require("./dto/expense-query.dto");
+let ExpensesController = class ExpensesController {
+    expensesService;
+    constructor(expensesService) {
+        this.expensesService = expensesService;
+    }
+    create(createExpenseDto) {
+        return this.expensesService.create(createExpenseDto);
+    }
+    findAll(query) {
+        return this.expensesService.findAll(query);
+    }
+    findOne(id) {
+        return this.expensesService.findOne(id);
+    }
+    update(id, updateExpenseDto) {
+        return this.expensesService.update(id, updateExpenseDto);
+    }
+    remove(id) {
+        return this.expensesService.remove(id);
+    }
+};
+exports.ExpensesController = ExpensesController;
+__decorate([
+    (0, common_1.Post)(),
+    (0, swagger_1.ApiOperation)({ summary: 'Crear un nuevo gasto' }),
+    (0, swagger_1.ApiResponse)({
+        status: 201,
+        description: 'Gasto creado exitosamente',
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 400,
+        description: 'Error en la solicitud',
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 404,
+        description: 'Cuenta o tipo de gasto no encontrado',
+    }),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [create_expense_dto_1.CreateExpenseDto]),
+    __metadata("design:returntype", void 0)
+], ExpensesController.prototype, "create", null);
+__decorate([
+    (0, common_1.Get)(),
+    (0, swagger_1.ApiOperation)({ summary: 'Obtener todos los gastos con filtros opcionales' }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: 'Lista de gastos obtenida exitosamente',
+    }),
+    __param(0, (0, common_1.Query)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [expense_query_dto_1.ExpenseQueryDto]),
+    __metadata("design:returntype", void 0)
+], ExpensesController.prototype, "findAll", null);
+__decorate([
+    (0, common_1.Get)(':id'),
+    (0, swagger_1.ApiOperation)({ summary: 'Obtener un gasto por ID' }),
+    (0, swagger_1.ApiParam)({
+        name: 'id',
+        type: Number,
+        description: 'ID del gasto',
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: 'Gasto encontrado',
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 404,
+        description: 'Gasto no encontrado',
+    }),
+    __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", void 0)
+], ExpensesController.prototype, "findOne", null);
+__decorate([
+    (0, common_1.Patch)(':id'),
+    (0, swagger_1.ApiOperation)({ summary: 'Actualizar un gasto' }),
+    (0, swagger_1.ApiParam)({
+        name: 'id',
+        type: Number,
+        description: 'ID del gasto',
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: 'Gasto actualizado exitosamente',
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 400,
+        description: 'Error en la solicitud',
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 404,
+        description: 'Gasto, cuenta o tipo de gasto no encontrado',
+    }),
+    __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, update_expense_dto_1.UpdateExpenseDto]),
+    __metadata("design:returntype", void 0)
+], ExpensesController.prototype, "update", null);
+__decorate([
+    (0, common_1.Delete)(':id'),
+    (0, common_1.HttpCode)(common_1.HttpStatus.NO_CONTENT),
+    (0, swagger_1.ApiOperation)({ summary: 'Eliminar un gasto (soft delete)' }),
+    (0, swagger_1.ApiParam)({
+        name: 'id',
+        type: Number,
+        description: 'ID del gasto',
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 204,
+        description: 'Gasto eliminado exitosamente',
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 404,
+        description: 'Gasto no encontrado',
+    }),
+    __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", void 0)
+], ExpensesController.prototype, "remove", null);
+exports.ExpensesController = ExpensesController = __decorate([
+    (0, swagger_1.ApiTags)('expenses'),
+    (0, common_1.Controller)('expenses'),
+    __metadata("design:paramtypes", [expenses_service_1.ExpensesService])
+], ExpensesController);
+//# sourceMappingURL=expenses.controller.js.map

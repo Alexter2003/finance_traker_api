@@ -1,0 +1,183 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// ENUMS
+// ============================================
+
+enum AccountType {
+  CASH
+  BANK
+  CREDIT_CARD
+  SAVINGS
+  OTHER
+}
+
+enum IncomeFrequency {
+  ONE_TIME
+  RECURRENT_MONTHLY
+  RECURRENT_BIWEEKLY
+}
+
+enum ExpenseCategoryType {
+  FIXED
+  VARIABLE
+}
+
+// ============================================
+// MODELS
+// ============================================
+
+model Account {
+  id             Int      @id @default(autoincrement())
+  name           String
+  type           AccountType
+  initialBalance Decimal  @db.Decimal(15, 2)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  deletedAt      DateTime?
+
+  // Relations
+  incomes            Income[]
+  expenses           Expense[]
+  transactionsFrom   Transaction[] @relation("TransactionFrom")
+  transactionsTo     Transaction[] @relation("TransactionTo")
+  adjustments        AccountAdjustment[]
+
+  @@index([type])
+  @@index([deletedAt])
+  @@map("accounts")
+}
+
+model Income {
+  id          Int             @id @default(autoincrement())
+  amount      Decimal         @db.Decimal(15, 2)
+  accountId   Int
+  frequency   IncomeFrequency
+  description String?
+  date        DateTime
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  deletedAt   DateTime?
+
+  // Relations
+  account Account @relation(fields: [accountId], references: [id])
+
+  @@index([accountId])
+  @@index([date])
+  @@index([deletedAt])
+  @@map("incomes")
+}
+
+model ExpenseType {
+  id          Int                @id @default(autoincrement())
+  name        String
+  type        ExpenseCategoryType
+  description String?
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+  deletedAt   DateTime?
+
+  // Relations
+  expenses Expense[]
+  budgets  Budget[]
+
+  @@index([type])
+  @@index([deletedAt])
+  @@map("expense_types")
+}
+
+model Expense {
+  id            Int      @id @default(autoincrement())
+  amount        Decimal  @db.Decimal(15, 2)
+  accountId     Int
+  expenseTypeId Int
+  description   String?
+  date          DateTime
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  deletedAt     DateTime?
+
+  // Relations
+  account     Account     @relation(fields: [accountId], references: [id])
+  expenseType ExpenseType @relation(fields: [expenseTypeId], references: [id])
+
+  @@index([accountId])
+  @@index([expenseTypeId])
+  @@index([date])
+  @@index([deletedAt])
+  @@map("expenses")
+}
+
+model Transaction {
+  id            Int      @id @default(autoincrement())
+  fromAccountId Int
+  toAccountId   Int
+  amount        Decimal  @db.Decimal(15, 2)
+  description   String?
+  date          DateTime
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  deletedAt     DateTime?
+
+  // Relations
+  fromAccount Account @relation("TransactionFrom", fields: [fromAccountId], references: [id])
+  toAccount   Account @relation("TransactionTo", fields: [toAccountId], references: [id])
+
+  @@index([fromAccountId])
+  @@index([toAccountId])
+  @@index([date])
+  @@index([deletedAt])
+  @@map("transactions")
+}
+
+model Budget {
+  id             Int      @id @default(autoincrement())
+  expenseTypeId  Int
+  monthlyAmount  Decimal  @db.Decimal(15, 2)
+  biweeklyAmount Decimal  @db.Decimal(15, 2)
+  pendingAmount  Decimal  @default(0) @db.Decimal(15, 2)
+  startDate      DateTime
+  endDate        DateTime
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  deletedAt      DateTime?
+
+  // Relations
+  expenseType ExpenseType @relation(fields: [expenseTypeId], references: [id])
+
+  @@index([expenseTypeId])
+  @@index([isActive])
+  @@index([startDate, endDate])
+  @@index([deletedAt])
+  @@map("budgets")
+}
+
+model AccountAdjustment {
+  id        Int      @id @default(autoincrement())
+  accountId Int
+  amount    Decimal  @db.Decimal(15, 2) // Positivo o negativo
+  reason    String
+  date      DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+
+  // Relations
+  account Account @relation(fields: [accountId], references: [id])
+
+  @@index([accountId])
+  @@index([date])
+  @@index([deletedAt])
+  @@map("account_adjustments")
+}
